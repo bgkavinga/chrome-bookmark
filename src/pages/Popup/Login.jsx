@@ -2,7 +2,7 @@ import { Box, Button, TextField, Grid, Paper } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import * as React from 'react';
-import { STATE_REGISTER, STATE_CONTENT } from './Popup';
+import { STATE_CONTENT } from './Popup';
 
 
 class Login extends React.Component {
@@ -13,6 +13,7 @@ class Login extends React.Component {
         this.handleLogin = this.handleLogin.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
         this.handleLoginResponse = this.handleLoginResponse.bind(this);
+        this.handleRegisterResponse = this.handleRegisterResponse.bind(this);
         this.state = {
             email: '', password: '', error: false, helperText: '', working: false
         }
@@ -42,7 +43,16 @@ class Login extends React.Component {
     }
 
     handleRegister(event) {
-        this.props.onAppStateChange({ appState: STATE_REGISTER })
+        this.setState({ working: true });
+        chrome.runtime.sendMessage({ command: 'register', email: this.state.email, password: this.state.password }, this.handleRegisterResponse);
+
+    }
+
+    handleRegisterResponse(data) {
+        if (data.error) {
+            this.setState({ error: true, helperText: data.error.code });
+        }
+        this.setState({ working: false, error: false, helperText: 'Account created successfully, try login' });
     }
 
     render() {

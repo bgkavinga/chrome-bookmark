@@ -1,23 +1,19 @@
 import React from 'react';
 import Login from './Login';
 import Content from './Content';
-import Register from './Register';
+import Loader from './Loader';
 
 export const STATE_LOGIN = 1;
-export const STATE_REGISTER = 2;
-export const STATE_CONTENT = 3;
+export const STATE_CONTENT = 2;
+export const STATE_LOADING = 3;
 
 class Popup extends React.Component {
 
   constructor(props) {
     super(props);
-    let state = { isLoggedIn: false, appState: STATE_LOGIN };
-    chrome.runtime.sendMessage({ command: 'isLoggedIn' }, (response) => {
-      state.isLoggedIn = response.isLoggedIn;
-    }
-    );
-    this.state = state;
+    this.state = { isLoggedIn: false, appState: STATE_LOADING };
     this.onAppStateChange = this.onAppStateChange.bind(this);
+    chrome.runtime.sendMessage({ command: 'isLoggedIn' }, this.onAppStateChange);
   }
 
   onAppStateChange(data) {
@@ -30,11 +26,11 @@ class Popup extends React.Component {
       case STATE_LOGIN:
         component = <Login onAppStateChange={this.onAppStateChange}></Login>;
         break;
-      case STATE_REGISTER:
-        component = <Register onAppStateChange={this.onAppStateChange}></Register>;
-        break;
       case STATE_CONTENT:
         component = <Content onAppStateChange={this.onAppStateChange}></Content>
+        break;
+      case STATE_LOADING:
+        component = <Loader onAppStateChange={this.onAppStateChange}></Loader>
         break;
     }
     return component;

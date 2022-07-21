@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, child, get } from "firebase/database";
+import { getDatabase, ref, set } from "firebase/database";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
 const firebaseConfig = {
@@ -44,9 +44,10 @@ const isLoggedIn = (request, sender, sendResponse) => {
     auth.onAuthStateChanged(function (user) {
         if (user) {
             data.loggedIn = true;
-            data.user = user;
+            data.appState = 2;
         } else {
             data.loggedIn = false;
+            data.appState = 1;
         }
         sendResponse(data);
     });
@@ -67,10 +68,11 @@ const login = (request, sender, sendResponse) => {
 }
 
 const save = (request, sender, sendResponse) => {
+    debugger;
     const data = {};
     const d = new Date();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const path = 'users/' + auth.currentUser.uid + '/' + d.getFullYear() + '/' + months[d.getMonth()] + '/' + d.getDate();
+    const path = 'users/' + auth.currentUser.uid + '/bookmarks/' + d.getFullYear() + '/' + months[d.getMonth()] + '/' + d.getDate() + '/' + request.data.title;
     set(ref(db, path), request.data);
     sendResponse(data);
 }
